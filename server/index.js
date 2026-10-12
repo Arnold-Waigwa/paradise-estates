@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 
@@ -9,4 +10,4 @@ app.get("/estates", (req, res) => {
   res.send("Connected to the server successfully");
 });
 
-app.listen(3000, () => console.log("started server"));
+app.listen(process.env.PORT, () => console.log("started server"));
