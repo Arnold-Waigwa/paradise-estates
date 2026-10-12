@@ -1,13 +1,10 @@
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import homesRouter from "./routes/homes.js";
 
 const app = express();
 
 app.use(cors());
-
-app.get("/estates", (req, res) => {
-  res.send("Connected to the server successfully");
-});
+app.use("/homes", homesRouter);
 
 app.listen(process.env.PORT, () => console.log("started server"));
