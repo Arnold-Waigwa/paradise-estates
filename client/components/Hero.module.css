@@ -1,0 +1,27 @@
+.article {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+
+  max-width: 640px;
+  margin: 4rem auto;
+  padding: 0 1.5rem;
+}
+
+.header {
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  line-height: var(--lh-3xl);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-main);
+  margin-bottom: 1rem;
+}
+
+.description {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--lh-base);
+  color: var(--color-text-muted);
+}

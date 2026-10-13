@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/estates": {
+      "/homes": {
         target: "http://localhost:3000",
       },
     },

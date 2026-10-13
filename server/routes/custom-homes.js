@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const results = await pool.query(`SELECT * FROM custom_home_options`);
+    const results = await pool.query(`SELECT * FROM custom_home`);
     if (!results)
       return res.status(404).send("No currently saved custom homes");
     res.send(results.rows);
@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
 
 // Body: { home_id: 4, name: "My home", options: [{ optionId: 2 }, ...] }
 router.post("/", async (req, res) => {
-  const { home_id, name, options } = req.body ?? {};
+  const { home_id, name, options } = req.body;
   const validId = (value) =>
     (typeof value === "string" && /^[1-9]\d*$/.test(value)) ||
     (typeof value === "number" && Number.isSafeInteger(value) && value > 0);
@@ -132,6 +132,167 @@ router.post("/", async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   } finally {
     client?.release();
+  }
+});
+
+// Send the new name and the complete list of selected options.
+router.put("/:customHomeId", async (req, res) => {
+  const { customHomeId } = req.params;
+  const { name, options } = req.body;
+
+  if (!/^[1-9]\d*$/.test(customHomeId)) {
+    return res.status(400).json({ error: "Invalid custom home ID." });
+  }
+  if (typeof name !== "string" || !name.trim() || name.trim().length > 255) {
+    return res
+      .status(400)
+      .json({ error: "Provide a name between 1 and 255 characters." });
+  }
+  if (!Array.isArray(options)) {
+    return res.status(400).json({ error: "Options must be an array." });
+  }
+  for (const option of options) {
+    if (
+      !option ||
+      !Number.isSafeInteger(Number(option.optionId)) ||
+      Number(option.optionId) <= 0
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Each option needs a valid optionId." });
+    }
+  }
+
+  let client;
+  try {
+    client = await pool.connect();
+    await client.query("BEGIN");
+
+    // Lock this design while replacing its selections.
+    const customHomeResult = await client.query(
+      "SELECT home_id FROM custom_home WHERE id = $1 FOR UPDATE",
+      [customHomeId],
+    );
+    if (customHomeResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Custom home not found." });
+    }
+    const homeId = customHomeResult.rows[0].home_id;
+    const homeResult = await client.query(
+      "SELECT price FROM homes WHERE id = $1",
+      [homeId],
+    );
+    const optionsResult = await client.query(
+      `SELECT options.id, options.name, options.price, options.category
+       FROM options
+       JOIN home_options ON options.id = home_options.option_id
+       WHERE home_options.home_id = $1`,
+      [homeId],
+    );
+
+    const availableOptions = optionsResult.rows;
+    const selectedOptions = [];
+    const selectedCategories = [];
+    const requiredCategories = [];
+    for (const option of availableOptions) {
+      if (!requiredCategories.includes(option.category)) {
+        requiredCategories.push(option.category);
+      }
+    }
+    for (const choice of options) {
+      const option = availableOptions.find(
+        (available) => Number(available.id) === Number(choice.optionId),
+      );
+      if (!option) {
+        await client.query("ROLLBACK");
+        return res
+          .status(400)
+          .json({ error: "A selected option is unavailable for this home." });
+      }
+      if (selectedCategories.includes(option.category)) {
+        await client.query("ROLLBACK");
+        return res
+          .status(400)
+          .json({ error: `Choose only one option for ${option.category}.` });
+      }
+      selectedOptions.push(option);
+      selectedCategories.push(option.category);
+    }
+    if (selectedCategories.length !== requiredCategories.length) {
+      await client.query("ROLLBACK");
+      return res
+        .status(400)
+        .json({ error: "Choose one option for every category." });
+    }
+
+    // Recalculate from the base price, not the old customized price.
+    let priceInCents = Math.round(Number(homeResult.rows[0].price) * 100);
+    for (const option of selectedOptions) {
+      priceInCents += Math.round(Number(option.price) * 100);
+    }
+    const price = (priceInCents / 100).toFixed(2);
+
+    await client.query(
+      "DELETE FROM custom_home_options WHERE custom_home_id = $1",
+      [customHomeId],
+    );
+    const updatedResult = await client.query(
+      `UPDATE custom_home SET name = $1, price = $2
+       WHERE id = $3 RETURNING *`,
+      [name.trim(), price, customHomeId],
+    );
+    for (const option of selectedOptions) {
+      await client.query(
+        `INSERT INTO custom_home_options (custom_home_id, home_id, option_id, category)
+         VALUES ($1, $2, $3, $4)`,
+        [customHomeId, homeId, option.id, option.category],
+      );
+    }
+    await client.query("COMMIT");
+    const updatedHome = updatedResult.rows[0];
+    updatedHome.options = selectedOptions;
+    return res.status(200).json(updatedHome);
+  } catch (error) {
+    if (client) {
+      try {
+        await client.query("ROLLBACK");
+      } catch (rollbackError) {
+        console.error("Error undoing custom home update:", rollbackError);
+      }
+    }
+    if (error.code === "23505") {
+      return res
+        .status(409)
+        .json({ error: "A custom home with that name already exists." });
+    }
+    console.error("Error updating custom home:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  } finally {
+    if (client) {
+      client.release();
+    }
+  }
+});
+
+router.delete("/:customHomeId", async (req, res) => {
+  const { customHomeId } = req.params;
+  if (!/^[1-9]\d*$/.test(customHomeId)) {
+    return res.status(400).json({ error: "Invalid custom home ID." });
+  }
+
+  try {
+    // The database cascade removes this design's option selections too.
+    const result = await pool.query(
+      "DELETE FROM custom_home WHERE id = $1 RETURNING id",
+      [customHomeId],
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Custom home not found." });
+    }
+    return res.status(204).send();
+  } catch (error) {
+    console.error("Error deleting custom home:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
