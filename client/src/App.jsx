@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import styles from "./App.module.css";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
+import HomeCard from "../components/HomeCard";
 
 const App = () => {
   const [error, setError] = useState("");
@@ -31,9 +33,9 @@ const App = () => {
       <Hero />
       {isLoading && <p>loading...</p>}
       {error && <p>Unable to get homes...</p>}
-      <ul>
+      <ul className={styles.cardContainer}>
         {homes.map((home) => (
-          <li key={home.id}>{home.name}</li>
+          <HomeCard key={home.id} home={home} />
         ))}
       </ul>
     </div>

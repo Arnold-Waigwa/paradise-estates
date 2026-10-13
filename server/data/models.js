@@ -1,5 +1,5 @@
 // Fictional home plans and illustrative prices in USD, not live listings or quotes.
-// Image paths refer to assets to add under the client's public/images directory.
+// Home photos are stored in client/public/images/homes; option assets are still pending.
 const homeData = [
   { id: 1, name: "The Maple Cottage", description: "A 1,450-square-foot single-story cottage with 3 bedrooms, 2 bathrooms, an open kitchen, and a covered front porch.", price: 285000, image: "/images/homes/maple-cottage.jpg" },
   { id: 2, name: "The Willow Ranch", description: "A 1,850-square-foot ranch with 3 bedrooms, 2 bathrooms, a split-bedroom layout, a walk-in pantry, and an attached two-car garage.", price: 349000, image: "/images/homes/willow-ranch.jpg" },

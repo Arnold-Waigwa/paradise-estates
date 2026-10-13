@@ -1,0 +1,77 @@
+.article {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px; /* Soft premium corner curve */
+  overflow: hidden; /* Forces image to respect the border radius */
+
+  /* Lift effect transition */
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Subtle mouse hover effect used by high-end apps */
+.article:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.08);
+}
+
+.image {
+  width: 100%;
+  height: 200px; /* Fixed bounding box size */
+  object-fit: cover; /* 💡 CRITICAL: Prevents distortion of different home images */
+  background-color: #f3f4f6; /* Placeholder color while loading image */
+}
+
+/* Internal padding block grouping elements away from the edges */
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  padding: 16px; /* Uniform inside container spacing */
+  flex-grow: 1; /* Pushes footer dynamically to the bottom */
+}
+
+.heading {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-main);
+  margin-bottom: 8px;
+}
+
+.description {
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+
+  /* Premium line-clamping: Truncates text gracefully if description is too long */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f3f4f6;
+  padding-top: 12px;
+  margin-top: auto; /* Forces structural alignment across variable description lengths */
+}
+
+.price {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.actionText {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: #3b82f6; /* Active brand color */
+  cursor: pointer;
+}

@@ -1,0 +1,13 @@
+.cardContainer {
+  list-style: none; /* Strips bullet points from ul */
+
+  /* Create an auto-responsive grid (Minimum width 280px per card) */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+  /* Spacing & Alignment (Rule of 8) */
+  gap: 24px;
+  max-width: 1200px;
+  margin: 3rem auto; /* Clean separation below the Hero section */
+  padding: 0 1.5rem; /* Matches your hero section padding */
+}
