@@ -66,7 +66,13 @@ const seedHomeData = async (client) => {
     VALUES ($1, $2, $3, $4, $5)
   `;
   for (const home of homeData) {
-    const values = [home.id, home.name, home.description, home.price, home.image];
+    const values = [
+      home.id,
+      home.name,
+      home.description,
+      home.price,
+      home.image,
+    ];
     await client.query(query, values);
   }
 };
