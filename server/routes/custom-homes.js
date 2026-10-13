@@ -3,6 +3,18 @@ import pool from "../data/pool-client.js";
 
 const router = express.Router();
 
+router.get("/", async (req, res) => {
+  try {
+    const results = await pool.query(`SELECT * FROM custom_home_options`);
+    if (!results)
+      return res.status(404).send("No currently saved custom homes");
+    res.send(results.rows);
+  } catch (error) {
+    console.log("Error getting custom homes", error);
+    res.status(500).send("Internal server error");
+  }
+});
+
 // Body: { home_id: 4, name: "My home", options: [{ optionId: 2 }, ...] }
 router.post("/", async (req, res) => {
   const { home_id, name, options } = req.body ?? {};
