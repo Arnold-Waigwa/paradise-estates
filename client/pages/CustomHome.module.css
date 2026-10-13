@@ -1,0 +1,234 @@
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 28px 80px;
+}
+.back {
+  color: #526359;
+  font-size: 0.9rem;
+}
+.header {
+  margin: 28px 0 32px;
+  max-width: 760px;
+}
+.eyebrow {
+  color: #62786c;
+  letter-spacing: 0.16em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.header h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  line-height: 1.2;
+  color: #21382b;
+  margin-bottom: 12px;
+}
+.header > p:last-child,
+.muted {
+  color: #6b7280;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 36px;
+  align-items: start;
+}
+.previewPanel {
+  position: sticky;
+  top: 24px;
+  background: #f6f8f5;
+  border: 1px solid #dfe5dd;
+  border-radius: 18px;
+  overflow: hidden;
+}
+.preview svg {
+  width: 100%;
+}
+.previewCaption {
+  padding: 20px 24px 16px;
+}
+.previewCaption h2,
+.optionsPanel > h2 {
+  font-size: 1.25rem;
+  color: #21382b;
+  margin-bottom: 6px;
+}
+.previewCaption p,
+.photoCaption {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+.homePhoto {
+  width: calc(100% - 48px);
+  height: 150px;
+  object-fit: cover;
+  margin: 0 24px;
+  border-radius: 10px;
+}
+.photoCaption {
+  padding: 10px 24px;
+  font-size: 0.75rem;
+}
+.prices {
+  padding: 12px 24px 24px;
+}
+.prices > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+}
+.prices dd {
+  font-weight: 600;
+  color: #21382b;
+}
+.prices .total {
+  margin-top: 10px;
+  padding-top: 18px;
+  border-top: 1px solid #d9e1d5;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.muted {
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+.fields {
+  min-width: 0;
+  padding: 0;
+}
+.category {
+  min-width: 0;
+  padding: 0;
+  margin-bottom: 28px;
+}
+.category legend {
+  font-weight: 700;
+  color: #21382b;
+  margin-bottom: 12px;
+}
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.optionCard {
+  position: relative;
+  border: 2px solid #e2e7e0;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.optionCard:hover {
+  border-color: #92a68f;
+}
+.optionCard:focus-within {
+  outline: 2px solid #3b82f6;
+  outline-offset: 3px;
+}
+.optionCard.selected {
+  border-color: #385d43;
+  background: #f5f8f2;
+}
+.optionCard input {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 18px;
+  height: 18px;
+  accent-color: #385d43;
+  z-index: 1;
+}
+.optionImage {
+  background: #eaf0ef;
+}
+.optionImage svg {
+  width: 100%;
+}
+.optionInfo {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.optionInfo > span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #21382b;
+}
+.optionInfo strong {
+  font-size: 0.8rem;
+  color: #47644e;
+}
+.optionInfo small {
+  color: #6b7280;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+.saveArea {
+  border-top: 1px solid #e2e7e0;
+  padding-top: 24px;
+  display: grid;
+  gap: 12px;
+}
+.saveArea label {
+  font-weight: 600;
+}
+.saveArea input {
+  width: 100%;
+  border: 1px solid #ccd5c9;
+  border-radius: 8px;
+  padding: 12px;
+  background: white;
+}
+.saveButton {
+  background: #294e37;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 9px;
+  font-weight: 600;
+}
+.saveButton:hover {
+  background: #1f3f2b;
+}
+.fields:disabled {
+  opacity: 0.65;
+}
+.fields:disabled .optionCard,
+.fields:disabled button {
+  cursor: wait;
+}
+.error,
+.success {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 8px;
+}
+.error {
+  color: #9c2727;
+  background: #fff0ee;
+}
+.success {
+  color: #265237;
+  background: #edf6ec;
+}
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .previewPanel {
+    position: static;
+  }
+  .page {
+    padding: 24px 18px 56px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .optionCard {
+    transition: none;
+  }
+}

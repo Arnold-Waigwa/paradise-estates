@@ -1,7 +1,8 @@
 import React from "react";
 import styles from "./HomeCard.module.css";
+import { Link } from "react-router-dom";
 
-const HomeCard = ({ home: { name, description, price, image } }) => {
+const HomeCard = ({ home: { id, name, description, price, image } }) => {
   return (
     <article className={styles.article}>
       <img
@@ -18,7 +19,9 @@ const HomeCard = ({ home: { name, description, price, image } }) => {
 
         <div className={styles.footer}>
           <span className={styles.price}>${price.toLocaleString()}</span>
-          <span className={styles.actionText}>View details &rarr;</span>
+          <span className={styles.actionText}>
+            <Link to={`/custom-homes/${id}`}>View details &rarr;</Link>
+          </span>
         </div>
       </div>
     </article>

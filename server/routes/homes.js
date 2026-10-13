@@ -13,6 +13,19 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:homeId", async (req, res) => {
+  try {
+    const result = await pool.query(`SELECT * FROM homes WHERE id=$1;`, [
+      req.params.homeId,
+    ]);
+    if (result.rows.length === 0) return res.status(404).send("Home not found");
+    res.send(result.rows);
+  } catch (error) {
+    console.log("error getting home", error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+});
+
 router.get("/:homeId/options", async (req, res) => {
   const { homeId } = req.params;
 

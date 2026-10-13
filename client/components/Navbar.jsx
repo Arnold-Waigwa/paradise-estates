@@ -1,15 +1,21 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./Navbar.module.css";
 
-const Navbar = () => {
+const Navbar = ({ search, onSearchChange }) => {
+  const navigate = useNavigate();
+  const submitSearch = (event) => {
+    event.preventDefault();
+    if (onSearchChange) return;
+    const query = new FormData(event.currentTarget).get("q").trim();
+    navigate(query ? `/?q=${encodeURIComponent(query)}` : "/");
+  };
   return (
     <nav className={styles.nav}>
       <Link to="/" className={styles.logo}>
         Home
       </Link>
 
-      <div className={styles.searchContainer}>
+      <form className={styles.searchContainer} role="search" onSubmit={submitSearch}>
         <svg
           className={styles.searchIcon}
           xmlns="http://w3.org"
@@ -26,13 +32,17 @@ const Navbar = () => {
         </svg>
         <input
           type="search"
+          name="q"
+          aria-label="Search homes"
+          value={search}
+          onChange={onSearchChange ? event => onSearchChange(event.target.value) : undefined}
           className={styles.searchInput}
           placeholder="Search homes..."
         />
-      </div>
+      </form>
 
       {/* Profile/Right Item */}
-      <div className={styles.navLink}>My Homes</div>
+      <Link to="/my-homes" className={styles.navLink}>My Homes</Link>
     </nav>
   );
 };

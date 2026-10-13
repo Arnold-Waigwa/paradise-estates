@@ -3,15 +3,59 @@ import pool from "../data/pool-client.js";
 
 const router = express.Router();
 
+// Include the base home and selected finishes so saved designs can be displayed.
 router.get("/", async (req, res) => {
   try {
-    const results = await pool.query(`SELECT * FROM custom_home`);
-    if (!results)
-      return res.status(404).send("No currently saved custom homes");
-    res.send(results.rows);
+    const homesResult = await pool.query(`
+      SELECT custom_home.*, homes.name AS home_name, homes.image
+      FROM custom_home
+      JOIN homes ON homes.id = custom_home.home_id
+      ORDER BY custom_home.id DESC
+    `);
+    const optionsResult = await pool.query(`
+      SELECT custom_home_options.custom_home_id, options.*
+      FROM custom_home_options
+      JOIN options ON options.id = custom_home_options.option_id
+      ORDER BY options.category
+    `);
+    for (const home of homesResult.rows) {
+      home.options = optionsResult.rows.filter(
+        option => option.custom_home_id === home.id,
+      );
+    }
+    return res.json(homesResult.rows);
   } catch (error) {
-    console.log("Error getting custom homes", error);
-    res.status(500).send("Internal server error");
+    console.error("Error getting custom homes:", error);
+    return res.status(500).json({ error: "Unable to load saved homes." });
+  }
+});
+
+router.get("/:customHomeId", async (req, res) => {
+  const { customHomeId } = req.params;
+  if (!/^[1-9]\d*$/.test(customHomeId)) {
+    return res.status(400).json({ error: "Invalid custom home ID." });
+  }
+  try {
+    const homeResult = await pool.query(
+      "SELECT * FROM custom_home WHERE id = $1",
+      [customHomeId],
+    );
+    if (homeResult.rows.length === 0) {
+      return res.status(404).json({ error: "Custom home not found." });
+    }
+    const optionsResult = await pool.query(
+      `SELECT options.* FROM options
+       JOIN custom_home_options ON options.id = custom_home_options.option_id
+       WHERE custom_home_options.custom_home_id = $1
+       ORDER BY options.category`,
+      [customHomeId],
+    );
+    const home = homeResult.rows[0];
+    home.options = optionsResult.rows;
+    return res.json(home);
+  } catch (error) {
+    console.error("Error getting custom home:", error);
+    return res.status(500).json({ error: "Unable to load this saved home." });
   }
 });
 
